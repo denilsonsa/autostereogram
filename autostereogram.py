@@ -26,7 +26,7 @@ def random_image(dimensions):
 
 
 def main():
-    depth_img = PIL.Image.open('heightmap.png')
+    depth_img = PIL.Image.open('depthmap.png')
 
     # The tile_img doesn't need to be the same size as depth_img.
     # It just needs to be the same height. The width can be smaller.
