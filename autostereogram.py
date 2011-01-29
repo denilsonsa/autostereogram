@@ -26,25 +26,41 @@ def random_image(dimensions):
 
 
 def main():
-    depth_img = PIL.Image.open('depthmap.png')
+    # Autostereogram parameters
+    pattern_width = 140
+    # Direction is either +1 or -1
+    # It selects between cross-eyed and wall-eyed
+    dir = +1
 
-    # The tile_img doesn't need to be the same size as depth_img.
-    # It just needs to be the same height. The width can be smaller.
-#    tile_img = PIL.Image.new("RGB", depth_img.size)
+    # Loading the depth image
+    depth_img = PIL.Image.open('depthmap.png').convert('L')
 
-    # The pixel access object, with indexes [x,y]
-#    tile_pixels = tile_img.load()
+    # TODO: Someday, allow loading an image as the repeating pattern
+    pattern_img = random_image((pattern_width, depth_img.size[1]))
+    pattern_img.save('pattern.png')  # DEBUG-only
+    #pattern_img.show()  # DEBUG-only
 
-    # Putting random data into the image:
-#    arr = numpy.array(tile_img)
-#    arr.put(
-#        numpy.arange(arr.size),
-#        numpy.random.random_integers(0, 255, arr.size)
-#    )
-#    tile_img.putdata(arr)
+    # Creating the output image
+    out_img = PIL.Image.new('RGB',
+        (depth_img.size[0] + 2*pattern_width, depth_img.size[1])
+    )
 
-    tile_img = random_image(depth_img.size)
-    tile_img.show()
+    # The pixel access objects, with indexes [x,y]
+    depth = depth_img.load()
+    pattern = pattern_img.load()
+    out = out_img.load()
+
+    # Generating the output image
+    out_img.paste(pattern_img, (0,0))
+
+    for y in xrange(0, out_img.size[1]):
+        for x in xrange(pattern_width, out_img.size[0]):
+            # FIXME! Out-of-bounds on "x-pattern_width"
+            out[x,y] = out[x-pattern_width, y]
+
+    # Saving the final image
+    out_img.save('out.png')
+    out_img.show()  # DEBUG-only ?
 
 
 if __name__ == "__main__":
